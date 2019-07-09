@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/activity_layout"
+    android:paddingLeft="@dimen/x26"
+    android:paddingRight="@dimen/x26"
+    android:paddingTop="@dimen/x20"
+    android:paddingBottom="@dimen/x20"
+    android:background="@drawable/shape_common_gray_corner">
+
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/activity_img"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@mipmap/ic_launcher"/>
+
+
+</LinearLayout>

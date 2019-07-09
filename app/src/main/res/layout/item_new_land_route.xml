@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/route_layout"
+    android:background="@drawable/shape_common_gray_corner"
+    android:padding="@dimen/x20">
+
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_centerInParent="true"
+        android:layout_marginLeft="@dimen/x22"
+        android:textColor="@color/colorPrimary"
+        android:textSize="@dimen/x28"
+        android:text="您有一个进行中的行程"/>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/go_route_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerInParent="true"
+        android:paddingTop="@dimen/x10"
+        android:paddingBottom="@dimen/x10"
+        android:paddingRight="@dimen/x28"
+        android:paddingLeft="@dimen/x28"
+        android:background="@drawable/shape_common_transparent_corner"
+        android:textColor="@color/colorPrimary"
+        android:textSize="@dimen/x28"
+        android:text="进入行程"/>
+
+</RelativeLayout>

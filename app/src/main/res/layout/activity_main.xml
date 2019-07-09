@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/MainLayoutTopStyle"
+    tools:context=".MainActivity">
+
+    <com.sk.commons.view.NoScrollViewPager
+        android:id="@+id/view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/title_bar_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+
+            <com.sk.dididemo.view.MainTitleBarWidget
+                android:id="@+id/title_bar"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/y94"
+                android:background="@color/colorPrimary"
+                android:layout_alignParentTop="true" />
+
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tab_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:tabTextColor="@color/colorPrimary"
+                app:tabIndicatorColor="@color/colorAccent"/>
+        </LinearLayout>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/to_bottom_img"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/x30"
+            android:layout_marginLeft="@dimen/x30"
+            android:layout_marginBottom="@dimen/x24"
+            android:alpha="0.8"
+            android:padding="@dimen/x10"
+            android:background="@color/colorPrimary"
+            android:visibility="gone"
+            android:textColor="@android:color/white"
+            android:text="滚下去"/>
+    </RelativeLayout>
+
+</RelativeLayout>

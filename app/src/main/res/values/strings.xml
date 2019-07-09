@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">DiDiDemo</string>
+
+
+    <string name="title_use_car">现在</string>
+    <string name="title_appointment_use_car">预约用车</string>
+</resources>

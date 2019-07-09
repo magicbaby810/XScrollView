@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:descendantFocusability="blocksDescendants"
+    android:background="@android:color/transparent"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/top_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/loc_call"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            android:padding="@dimen/x10"
+            android:gravity="center"
+            android:layout_marginLeft="@dimen/x30"
+            android:layout_marginBottom="@dimen/x20"
+            android:textColor="@android:color/white"
+            android:text="安全中心"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/loc_iv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/x10"
+            android:background="@color/colorPrimary"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="@dimen/x30"
+            android:layout_marginBottom="@dimen/x20"
+            android:gravity="center"
+            android:text="定位"
+            android:textColor="@android:color/white"
+            android:elevation="@dimen/x4" />
+
+    </RelativeLayout>
+
+
+    <LinearLayout
+        android:id="@+id/layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/x32"
+        android:layout_marginRight="@dimen/x32"
+        android:background="@color/colorPrimary"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/x23"
+            android:layout_marginRight="@dimen/x23"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/use_car_now"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:paddingTop="@dimen/x35"
+                android:paddingBottom="@dimen/x18"
+                android:text="@string/title_use_car"
+                android:textColor="@color/selector_use_car_color"
+                android:textSize="@dimen/x32"
+                />
+
+            <TextView
+                android:id="@+id/use_car_plan"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:paddingTop="@dimen/x35"
+                android:paddingBottom="@dimen/x18"
+                android:text="预约"
+                android:textColor="@color/selector_use_car_color"
+                android:textSize="@dimen/x32"
+                />
+        </LinearLayout>
+
+
+        <view
+            android:id="@+id/choose_source_item_widget"
+            class="com.sk.dididemo.view.ChooseLocationWidget$ChooseLocationItemWidget"
+            android:layout_width="fill_parent"
+            android:layout_height="@dimen/y110" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x2"
+            android:layout_marginLeft="@dimen/x84"
+            android:layout_marginRight="@dimen/x84"
+            android:background="@color/text_color_e7" />
+
+        <view
+            android:id="@+id/choose_dest_item_widget"
+            class="com.sk.dididemo.view.ChooseLocationWidget$ChooseLocationItemWidget"
+            android:layout_width="fill_parent"
+            android:layout_height="@dimen/y110" />
+
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/new_land_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:nestedScrollingEnabled="false"
+        android:background="@android:color/transparent"
+        android:paddingTop="@dimen/x20"
+        android:paddingBottom="@dimen/x20"
+        android:paddingRight="@dimen/x32"
+        android:paddingLeft="@dimen/x32"/>
+
+</LinearLayout>
