@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnticipateOvershootInterpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -37,6 +38,8 @@ import com.sk.dididemo.event.RefreshTitleBarEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.sk.commons.utils.ObjectAnimatorHelper.BOTTOM_TO_VISIBLE;
+
 /**
  * @author sk
  * @date 2019-7-08
@@ -49,9 +52,18 @@ public class ChooseLocationWidget extends CustomNestedScrollView implements NewL
     private int titleBarHeight;
     /** 固定toplayout到底部距离 */
     private int topLayoutMargin;
-
-
-
+    /** 动态toplayout距离顶部的距离 */
+    private int dynamicTopLayoutMargin;
+    /** recyclerview show part 偏移系数 */
+    private final static float ITEM_OFFSET_VALUE = 0.18f;
+    /** recyclerview show part最大固定高度 */
+    private int maxHeight = 900;
+    /** 滚动的高度*/
+    private int scrollY;
+    /** 未完成行程高度 */
+    private int unfinishedRouteHeight = 0;
+    /** recyclerview item高度 */
+    private int itemHeight = 0;
 
     private ChooseLocationItemWidget mSourceItem;
     private ChooseLocationItemWidget mDestItem;
@@ -63,7 +75,7 @@ public class ChooseLocationWidget extends CustomNestedScrollView implements NewL
 
     private NewLandAdapter newLandAdapter;
 
-
+    private DisplayMetrics displayMetrics;
 
 
     public ChooseLocationWidget(Context context) {
@@ -102,15 +114,28 @@ public class ChooseLocationWidget extends CustomNestedScrollView implements NewL
         newLandRecyclerView.setNestedScrollingEnabled(false);
         newLandRecyclerView.setItemAnimator(new DefaultItemAnimator());
         newLandRecyclerView.addItemDecoration(new SpaceItemDecoration(20, 20));
+        newLandRecyclerView.addOnLayoutChangeListener(new OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+
+                changeLayout(v.getMeasuredHeight() > 0 ? maxHeight : v.getMeasuredHeight());
+
+                if (oldTop == 0) {
+                    ObjectAnimatorHelper.translationYBottomAnim(ChooseLocationWidget.this, new AnticipateOvershootInterpolator(), 1000, BOTTOM_TO_VISIBLE, 360f);
+                }
+            }
+        });
 
         newLandAdapter = new NewLandAdapter();
         newLandAdapter.setLayoutChangeListener(this);
         newLandRecyclerView.setAdapter(newLandAdapter);
 
-
-        setTopHeight(topLayout.getTop());
+        displayMetrics = AppUtils.getDpi(getContext());
+        // 适配低分辨率手机,以2340分辨率做参照
+        if (displayMetrics.heightPixels < 2340) {
+            maxHeight = displayMetrics.heightPixels * maxHeight / 2340;
+        }
     }
-
 
     public void setCouponText(Coupon coupon) {
 
@@ -146,35 +171,63 @@ public class ChooseLocationWidget extends CustomNestedScrollView implements NewL
 
     @Override
     public void changeLayout(int value) {
+        itemHeight = value;
 
-        DisplayMetrics displayMetrics = AppUtils.getDpi(getContext());
+        setTopLayoutTopMargin(itemHeight);
 
-        Log.e("changeLayout", topLayout.getHeight() + " " + bottomView.getHeight());
-        topLayoutMargin = displayMetrics.heightPixels - (topLayout.getHeight() + bottomView.getHeight() + (int) (value * 0.8) + ImmersionBar.getNavigationBarHeight((android.app.Activity) getContext()));
+        // 初始化超过底布局，响应地图
+        setTopHeight(dynamicTopLayoutMargin + topLayout.getMeasuredHeight());
+    }
+
+    private void setTopLayoutTopMargin(int itemHeight) {
+
+        Log.e("setTopLayoutTopMargin", "topview：" + topLayout.getMeasuredHeight() + " bottomview：" + bottomView.getMeasuredHeight() + " 列表首次展示高度：" + (int) (itemHeight * ITEM_OFFSET_VALUE + unfinishedRouteHeight)
+                + " 状态栏：" + ImmersionBar.getStatusBarHeight((android.app.Activity) getContext()) + " 导航栏：" + AppUtils.getNavigationHeight((android.app.Activity) getContext()) + " unfinishedRouteHeight " + unfinishedRouteHeight + " itemHeight " + itemHeight);
+
+        int tempTopLayoutMargin = 0;
+        if (topLayoutMargin != 0) {
+            tempTopLayoutMargin = topLayoutMargin;
+        }
+        topLayoutMargin = displayMetrics.heightPixels - (topLayout.getMeasuredHeight() + bottomView.getMeasuredHeight() + ImmersionBar.getStatusBarHeight((android.app.Activity) getContext()) + AppUtils.getNavigationHeight((android.app.Activity) getContext()));
+
+        dynamicTopLayoutMargin = topLayoutMargin - (int) (itemHeight * ITEM_OFFSET_VALUE + unfinishedRouteHeight);
+
+        // 此处是防止底布局高度过高遮挡住地图中心的图钉，如果你有这样的需求请把注释清掉
+//        if (dynamicTopLayoutMargin < displayMetrics.heightPixels / 2) {
+//            dynamicTopLayoutMargin = displayMetrics.heightPixels / 2 - 100;
+//        }
 
         LinearLayout.LayoutParams ll = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        ll.topMargin = topLayoutMargin;
+        ll.topMargin = dynamicTopLayoutMargin;
         topLayout.setLayoutParams(ll);
+
+        int happyTogether = scrollY + (tempTopLayoutMargin - topLayoutMargin);
+        // negative number is nothing
+        if (happyTogether > 0) {
+            scrollChange(scrollY);
+        }
+        Log.e("setTopLayoutTopMargin", dynamicTopLayoutMargin + " " + topLayoutMargin);
     }
 
     boolean isVisible = true;
     @Override
     public void scrollChange(int scrollY) {
+        this.scrollY = scrollY;
 
         // 动态设置topLayout的距离顶部的高度
-        setTopHeight(topLayout.getTop() - scrollY);
-
+        setTopHeight(topLayout.getTop() - scrollY + topLayout.getMeasuredHeight());
 
 
         // 计算滚动到接近titlebar时，隐藏toplayout布局
         // 顶部高度topMargin：屏幕高度减去titlebar高度和状态栏高度
         // 滚动高度scrollHeight：scrollY是从toplayout的高度开始计算的，所以scrollY加上屏幕高度减去页面初始化后toplayout的高度
-        DisplayMetrics displayMetrics = AppUtils.getDpi(getContext());
-
         int topMargin = displayMetrics.heightPixels - titleBarHeight - ImmersionBar.getStatusBarHeight((android.app.Activity) getContext());
-        int scrollHeight = scrollY + (displayMetrics.heightPixels - topLayoutMargin);
 
-        if (scrollHeight >= topMargin) {
+        int scrollHeight = scrollY + (displayMetrics.heightPixels - topLayoutMargin - AppUtils.getNavigationHeight((android.app.Activity) getContext()) - ImmersionBar.getStatusBarHeight((android.app.Activity) getContext()));
+
+        Log.e("setTopLayoutTopMargin", scrollY + " " + scrollHeight + " " + topMargin + " " + topLayoutMargin);
+
+        if (scrollHeight + (int) (itemHeight * ITEM_OFFSET_VALUE + unfinishedRouteHeight) >= topMargin) {
 
             if (topLayout.getVisibility() == VISIBLE && isVisible) {
                 isVisible = false;
@@ -197,7 +250,11 @@ public class ChooseLocationWidget extends CustomNestedScrollView implements NewL
             }
         }
 
-        RxBus.getDefault().post(new RefreshTitleBarEvent(scrollHeight >= topMargin));
+        boolean touchMoon = scrollHeight + (int) (itemHeight * ITEM_OFFSET_VALUE + unfinishedRouteHeight) >= (topMargin + topLayout.getMeasuredHeight() - 30);
+
+        // 更新titlebar
+
+        RxBus.getDefault().post(new RefreshTitleBarEvent(touchMoon));
     }
 
     public static class ChooseLocationItemWidget extends RelativeLayout {

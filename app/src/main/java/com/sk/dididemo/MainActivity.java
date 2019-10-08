@@ -54,8 +54,8 @@ public class MainActivity extends BaseActivity implements View.OnLayoutChangeLis
     }
 
     @Override
-    protected String getTitleText() {
-        return null;
+    protected int setStatusBarColor() {
+        return R.color.colorPrimary;
     }
 
     @Override
