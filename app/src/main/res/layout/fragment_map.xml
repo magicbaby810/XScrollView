@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <com.sk.dididemo.view.ChooseLocationWidget
+    <com.sk.xscrollview.XScrollView
         android:id="@+id/choose_location_widget"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

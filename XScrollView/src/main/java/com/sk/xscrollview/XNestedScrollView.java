@@ -1,6 +1,5 @@
-package com.sk.dididemo.view;
+package com.sk.xscrollview;
 
-import android.app.Activity;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -12,8 +11,6 @@ import androidx.annotation.Nullable;
 import androidx.core.widget.NestedScrollView;
 import androidx.dynamicanimation.animation.SpringAnimation;
 
-import com.sk.commons.utils.SoftKeyBoardListener;
-
 
 /**
  * 增加回弹效果
@@ -21,7 +18,7 @@ import com.sk.commons.utils.SoftKeyBoardListener;
  *
  * @author sk on 2019-07-04.
  */
-public class CustomNestedScrollView extends NestedScrollView implements NestedScrollView.OnScrollChangeListener {
+public class XNestedScrollView extends NestedScrollView implements NestedScrollView.OnScrollChangeListener {
 
     private float startDragY;
     /** 布局顶部距离屏幕顶部的距离*/
@@ -33,12 +30,12 @@ public class CustomNestedScrollView extends NestedScrollView implements NestedSc
     private ScrollChangeListener scrollChangeListener;
 
 
-    public CustomNestedScrollView(@NonNull Context context) {
+    public XNestedScrollView(@NonNull Context context) {
         super(context);
         init();
     }
 
-    public CustomNestedScrollView(@NonNull Context context, @Nullable AttributeSet attrs) {
+    public XNestedScrollView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init();
     }

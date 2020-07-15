@@ -5,9 +5,7 @@ import android.os.Handler;
 import com.sk.commons.base.BaseFragment;
 import com.sk.dididemo.bean.Coupon;
 import com.sk.dididemo.bean.Order;
-import com.sk.dididemo.view.ChooseLocationWidget;
-
-import java.util.logging.LogRecord;
+import com.sk.xscrollview.XScrollView;
 
 import butterknife.BindView;
 
@@ -17,7 +15,7 @@ import butterknife.BindView;
 public class MapFragment extends BaseFragment {
 
     @BindView(R.id.choose_location_widget)
-    ChooseLocationWidget chooseLocationWidget;
+    XScrollView chooseLocationWidget;
 
     @Override
     protected int getLayoutId() {

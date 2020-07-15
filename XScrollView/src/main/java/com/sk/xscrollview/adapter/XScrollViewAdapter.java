@@ -1,5 +1,6 @@
-package com.sk.dididemo.adapter;
+package com.sk.xscrollview.adapter;
 
+import android.content.Context;
 import android.text.SpannableString;
 import android.text.style.RelativeSizeSpan;
 import android.util.Log;
@@ -14,20 +15,17 @@ import androidx.appcompat.widget.AppCompatTextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 
-import com.sk.commons.utils.AppUtils;
-import com.sk.dididemo.R;
-import com.sk.dididemo.bean.Activity;
-import com.sk.dididemo.bean.Coupon;
-import com.sk.dididemo.bean.NewLandBean;
-import com.sk.dididemo.bean.Order;
+import com.sk.xscrollview.R;
+import com.sk.xscrollview.bean.XScrollViewBean;
+import com.sk.xscrollview.interf.LayoutConfigImpl;
+import com.sk.xscrollview.utils.SuperViewHolder;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 
 /**
  * @author sk on 2019-07-02.
  */
-public class NewLandAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class XScrollViewAdapter extends ListBaseAdapter<SuperViewHolder> implements LayoutConfigImpl {
 
 
     /**行程位置*/
@@ -43,36 +41,50 @@ public class NewLandAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private int activitySize = 0;
 
 
+    private int routeResourceId = 0;
+    private int couponResourceId = 0;
+    private int activityResourceId = 0;
+
+    private View routeItemView, couponItemView, activityItemView;
+
+
     private int itemCount = 0;
-    private NewLandBean entity = new NewLandBean();
+    private XScrollViewBean entity = new XScrollViewBean();
 
     private LayoutChangeListener layoutChangeListener;
 
+    public XScrollViewAdapter(Context context) {
+        super(context);
+    }
 
 
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public SuperViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         switch (viewType) {
             case ROUTE_INDEX:
-                return new HolderRoute(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_new_land_route, parent, false));
+                routeItemView = LayoutInflater.from(parent.getContext()).inflate(routeResourceId, parent, false);
+                return new SuperViewHolder(routeItemView);
             case COUPON_INDEX:
-                return new HolderCoupon(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_new_land_coupon, parent, false));
+                couponItemView = LayoutInflater.from(parent.getContext()).inflate(couponResourceId, parent, false);
+                return new SuperViewHolder(couponItemView);
             case ACTIVITIES_INDEX:
-                return new HolderActivities(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_new_land_activities, parent, false));
+                activityItemView = LayoutInflater.from(parent.getContext()).inflate(activityResourceId, parent, false);
+                return new SuperViewHolder(activityItemView);
             default:
                 Log.d("error","viewholder is null");
                 return null;
         }
     }
 
+
     @Override
-    public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, final int position) {
-        if (holder instanceof HolderRoute) {
-            bindTypeRoute((HolderRoute) holder, position);
-        } else if (holder instanceof HolderCoupon) {
-            bindTypeCoupon((HolderCoupon) holder, position);
+    public void onBindViewHolder(SuperViewHolder holder, int position) {
+        if (holder.itemView.equals(routeItemView)) {
+            bindTypeRoute(holder, position);
+        } else if (holder.itemView.equals(couponItemView)) {
+            bindTypeCoupon(holder, position);
         } else {
-            bindTypeActivities((HolderActivities) holder, position);
+            bindTypeActivities(holder, position);
         }
 
 
@@ -86,65 +98,42 @@ public class NewLandAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         });
     }
 
+    @Override
+    public void onBindItemHolder(SuperViewHolder holder, int position) {
 
-    public class HolderRoute extends RecyclerView.ViewHolder {
-        public View routeLayout;
-        public AppCompatTextView goRouteText;
-
-        public HolderRoute(View itemView) {
-            super(itemView);
-            routeLayout = itemView.findViewById(R.id.route_layout);
-            goRouteText = itemView.findViewById(R.id.go_route_text);
-        }
     }
 
-    public class HolderCoupon extends RecyclerView.ViewHolder {
-        public View couponLayout;
-        public AppCompatTextView seeMoreText;
-
-        public HolderCoupon(View itemView) {
-            super(itemView);
-            couponLayout = itemView.findViewById(R.id.coupon_layout);
-            seeMoreText = itemView.findViewById(R.id.see_more_text);
-        }
+    @Override
+    public void setRouteLayout(int resourceId) {
+        this.routeResourceId = resourceId;
     }
 
-    public class HolderActivities extends RecyclerView.ViewHolder {
-        public View activityLayout;
-        public AppCompatImageView activityImg;
-
-        public HolderActivities(View itemView) {
-            super(itemView);
-            activityLayout = itemView.findViewById(R.id.activity_layout);
-            activityImg = itemView.findViewById(R.id.activity_img);
-        }
+    @Override
+    public void setCouponLayout(int resourceId) {
+        this.couponResourceId = resourceId;
     }
 
-    private void bindTypeRoute(final HolderRoute holder, final int position) {
-        final ArrayList<Order> orders = entity.orders;
+    @Override
+    public void setActivityLayout(int resourceId) {
+        this.activityResourceId = resourceId;
+    }
+
+    private void bindTypeRoute(final SuperViewHolder holder, final int position) {
+        final ArrayList<Object> orders = entity.orders;
         if (orders != null && orders.size() > 0) {
 
-            holder.goRouteText.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (AppUtils.isFastClick()) {
-                        return;
-                    }
 
-
-                }
-            });
 
 
         } else {
             LinearLayout.LayoutParams ll = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0);
-            holder.routeLayout.setLayoutParams(ll);
+            holder.itemView.setLayoutParams(ll);
         }
     }
 
 
-    private void bindTypeCoupon(final HolderCoupon holder, final int position) {
-        final ArrayList<Coupon> coupons = entity.coupons;
+    private void bindTypeCoupon(final SuperViewHolder holder, final int position) {
+        final ArrayList<Object> coupons = entity.coupons;
         if (coupons != null && coupons.size() > 0) {
 
 
@@ -166,30 +155,26 @@ public class NewLandAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             holder.seeMoreText.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (AppUtils.isFastClick()) {
-                        return;
-                    }
-
 
                 }
             });
 
         } else {
             LinearLayout.LayoutParams ll = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0);
-            holder.couponLayout.setLayoutParams(ll);
+            holder.itemView.setLayoutParams(ll);
         }
     }
 
 
-    private void bindTypeActivities(final HolderActivities holder, final int position) {
-        final ArrayList<Activity> messages = entity.activities;
+    private void bindTypeActivities(final SuperViewHolder holder, final int position) {
+        final ArrayList<Object> messages = entity.activities;
         if (messages != null && messages.size() > 0) {
 
 
 
         } else {
             LinearLayout.LayoutParams ll = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0);
-            holder.activityLayout.setLayoutParams(ll);
+            holder.itemView.setLayoutParams(ll);
         }
     }
 
@@ -209,7 +194,7 @@ public class NewLandAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         return itemCount;
     }
 
-    public void setData(NewLandBean entity) {
+    public void setData(XScrollViewBean entity) {
         routeSize = (null == entity.orders || 0 == entity.orders.size()) ? 0 : entity.orders.size();
         couponSize = (null == entity.coupons || 0 == entity.coupons.size()) ? 0 : entity.coupons.size();
         activitySize = (null == entity.activities || 0 == entity.activities.size()) ? 0 : entity.activities.size();
@@ -218,18 +203,18 @@ public class NewLandAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         notifyDataSetChanged();
     }
 
-    public void setActivityData(ArrayList<Activity> activities) {
+    public void setActivityData(ArrayList<Object> activities) {
         entity.activities = activities;
         setData(entity);
     }
 
 
-    public void setCouponData(ArrayList<Coupon> coupons) {
+    public void setCouponData(ArrayList<Object> coupons) {
         this.entity.coupons = coupons;
         setData(entity);
     }
 
-    public void setOrderData(ArrayList<Order> orders) {
+    public void setOrderData(ArrayList<Object> orders) {
         this.entity.orders = orders;
         setData(entity);
     }

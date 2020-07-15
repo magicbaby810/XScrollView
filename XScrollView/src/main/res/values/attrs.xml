@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="XScrollView">
+
+        <!-- 提示文字大小 -->
+        <attr name="hintTextMarginTop" format="dimension"/>
+        <!-- 提示文字大小 -->
+        <attr name="hintTextSize" format="dimension"/>
+        <!-- 提示文字颜色 -->
+        <attr name="hintTextColor" format="color"/>
+
+        <!-- 刷新按钮文字大小 -->
+        <attr name="refreshTextSize" format="dimension"/>
+        <!-- 刷新按钮文字颜色 -->
+        <attr name="refreshTextColor" format="color"/>
+        <!-- 刷新按钮背景颜色 -->
+        <attr name="refreshBackground" format="reference"/>
+
+
+
+        <!-- 行程布局 -->
+        <attr name="routeLayout" format="dimension"/>
+        <!-- 优惠券布局 -->
+        <attr name="couponLayout" format="color"/>
+        <!-- 活动布局 -->
+        <attr name="activityLayout" format="reference"/>
+
+    </declare-styleable>
+
+
+</resources>

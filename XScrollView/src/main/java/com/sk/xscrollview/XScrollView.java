@@ -1,8 +1,9 @@
-package com.sk.dididemo.view;
+package com.sk.xscrollview;
 
 import android.animation.Animator;
+import android.app.Activity;
 import android.content.Context;
-import android.text.TextUtils;
+import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -16,36 +17,24 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import androidx.core.content.ContextCompat;
+
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-
-import com.gyf.barlibrary.ImmersionBar;
-import com.sk.commons.utils.AppUtils;
-import com.sk.commons.utils.ObjectAnimatorHelper;
-import com.sk.commons.utils.OnAnimListener;
-import com.sk.commons.utils.RxBus;
-import com.sk.commons.utils.SpaceItemDecoration;
-import com.sk.dididemo.R;
-import com.sk.dididemo.adapter.NewLandAdapter;
-import com.sk.dididemo.bean.Activity;
-import com.sk.dididemo.bean.Coupon;
-import com.sk.dididemo.bean.Order;
-import com.sk.dididemo.event.RefreshTitleBarEvent;
+import com.sk.xscrollview.adapter.XScrollViewAdapter;
+import com.sk.xscrollview.bean.XScrollViewBean;
+import com.sk.xscrollview.utils.XScrollViewUtils;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import static com.sk.commons.utils.ObjectAnimatorHelper.BOTTOM_TO_VISIBLE;
 
 /**
  * @author sk
  * @date 2019-7-08
  */
-public class ChooseLocationWidget extends CustomNestedScrollView implements NewLandAdapter.LayoutChangeListener,
-       CustomNestedScrollView.ScrollChangeListener {
+public class XScrollView extends XNestedScrollView implements XScrollViewAdapter.LayoutChangeListener,
+       XNestedScrollView.ScrollChangeListener {
 
 
     /** 滚动到顶部临界点 */
@@ -70,28 +59,52 @@ public class ChooseLocationWidget extends CustomNestedScrollView implements NewL
     private TextView useCarNow, useCarPlan;
     private View bottomView, topLayout;
 
+    private int routeLayoutResourceId, couponLayoutResourceId, activityLayoutResourceId;
+
 
     private RecyclerView newLandRecyclerView;
 
-    private NewLandAdapter newLandAdapter;
+    private XScrollViewAdapter xScrollViewAdapter;
 
     private DisplayMetrics displayMetrics;
 
+    private RecyclerView.ItemDecoration itemDecoration;
 
-    public ChooseLocationWidget(Context context) {
+
+    public XScrollView(Context context) {
         super(context);
-        init();
+        init(context, null);
     }
 
-    public ChooseLocationWidget(Context context, AttributeSet attrs) {
+    public XScrollView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init();
+        init(context, attrs);
     }
 
-    private void init() {
+    private void init(Context context, AttributeSet attrs) {
+        if (null != attrs) {
+            TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.XScrollView);
+            hintTextSize = array.getDimension(R.styleable.DefaultPageView_hintTextSize, defaultValue);
+            hintTextColor = array.getColor(R.styleable.DefaultPageView_hintTextColor, defaultValue);
+            hintTextMarginTop = array.getDimension(R.styleable.DefaultPageView_hintTextMarginTop, 120);
+
+            refreshTextSize = array.getDimension(R.styleable.DefaultPageView_refreshTextSize, defaultValue);
+            refreshTextColor = array.getColor(R.styleable.DefaultPageView_refreshTextColor, defaultValue);
+
+            routeLayoutResourceId = array.getLayoutDimension(R.styleable.XScrollView_routeLayout, -1);
+            couponLayoutResourceId = array.getLayoutDimension(R.styleable.XScrollView_couponLayout, -1);
+            activityLayoutResourceId = array.getLayoutDimension(R.styleable.XScrollView_activityLayout, -1);
+
+            array.recycle();
+        }
+
+
+
+
+
         setScrollChangeListener(this);
 
-        LayoutInflater.from(getContext()).inflate(R.layout.widget_choose_location, this);
+        LayoutInflater.from(getContext()).inflate(R.layout.adapter_scroll_view_item, this);
         newLandRecyclerView = findViewById(R.id.new_land_view);
         topLayout = findViewById(R.id.top_layout);
         bottomView = findViewById(R.id.layout);
@@ -113,29 +126,39 @@ public class ChooseLocationWidget extends CustomNestedScrollView implements NewL
         newLandRecyclerView.setHasFixedSize(true);
         newLandRecyclerView.setNestedScrollingEnabled(false);
         newLandRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        newLandRecyclerView.addItemDecoration(new SpaceItemDecoration(20, 20));
-        newLandRecyclerView.addOnLayoutChangeListener(new OnLayoutChangeListener() {
+        newLandRecyclerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
 
-                changeLayout(v.getMeasuredHeight() > 0 ? maxHeight : v.getMeasuredHeight());
+                changeLayout(v.getMeasuredHeight() >= 0 && v.getMeasuredHeight() < 1500 ? maxHeight : v.getMeasuredHeight());
 
                 if (oldTop == 0) {
-                    ObjectAnimatorHelper.translationYBottomAnim(ChooseLocationWidget.this, new AnticipateOvershootInterpolator(), 1000, BOTTOM_TO_VISIBLE, 360f);
+                    ObjectAnimatorHelper.translationYBottomAnim(XScrollView.this, new AnticipateOvershootInterpolator(), 1000, ObjectAnimatorHelper.BOTTOM_TO_VISIBLE, 360f);
                 }
             }
         });
 
-        newLandAdapter = new NewLandAdapter();
-        newLandAdapter.setLayoutChangeListener(this);
-        newLandRecyclerView.setAdapter(newLandAdapter);
+        xScrollViewAdapter = new XScrollViewAdapter();
+        xScrollViewAdapter.setLayoutChangeListener(this);
 
-        displayMetrics = AppUtils.getDpi(getContext());
+        xScrollViewAdapter.setCouponLayout(couponLayoutResourceId);
+        xScrollViewAdapter.setRouteLayout(routeLayoutResourceId);
+        xScrollViewAdapter.setActivityLayout(activityLayoutResourceId);
+
+        newLandRecyclerView.setAdapter(xScrollViewAdapter);
+
+        displayMetrics = XScrollViewUtils.getDpi(getContext());
         // 适配低分辨率手机,以2340分辨率做参照
         if (displayMetrics.heightPixels < 2340) {
             maxHeight = displayMetrics.heightPixels * maxHeight / 2340;
         }
     }
+
+    public XScrollView setItemDecoration(RecyclerView.ItemDecoration itemDecoration) {
+        newLandRecyclerView.addItemDecoration(itemDecoration);
+        return this;
+    }
+
 
     public void setCouponText(Coupon coupon) {
 
@@ -146,7 +169,7 @@ public class ChooseLocationWidget extends CustomNestedScrollView implements NewL
         coupons.add(coupon);
         coupons.add(coupon);
         coupons.add(coupon);
-        newLandAdapter.setCouponData(coupons);
+        xScrollViewAdapter.setCouponData(coupons);
     }
 
     public void setActivityText(Activity activity) {
@@ -154,14 +177,14 @@ public class ChooseLocationWidget extends CustomNestedScrollView implements NewL
         ArrayList<Activity> activities = new ArrayList<>();
         activities.add(activity);
 
-        newLandAdapter.setActivityData(activities);
+        xScrollViewAdapter.setActivityData(activities);
     }
 
     public void setOrderText(Order order) {
 
         ArrayList<Order> orders = new ArrayList<>();
         orders.add(order);
-        newLandAdapter.setOrderData(orders);
+        xScrollViewAdapter.setOrderData(orders);
     }
 
 
@@ -182,13 +205,13 @@ public class ChooseLocationWidget extends CustomNestedScrollView implements NewL
     private void setTopLayoutTopMargin(int itemHeight) {
 
         Log.e("setTopLayoutTopMargin", "topview：" + topLayout.getMeasuredHeight() + " bottomview：" + bottomView.getMeasuredHeight() + " 列表首次展示高度：" + (int) (itemHeight * ITEM_OFFSET_VALUE + unfinishedRouteHeight)
-                + " 状态栏：" + ImmersionBar.getStatusBarHeight((android.app.Activity) getContext()) + " 导航栏：" + AppUtils.getNavigationHeight((android.app.Activity) getContext()) + " unfinishedRouteHeight " + unfinishedRouteHeight + " itemHeight " + itemHeight);
+                + " 状态栏：" + XScrollViewUtils.getStatusBarHeight((android.app.Activity) getContext()) + " 导航栏：" + XScrollViewUtils.getNavigationHeight((android.app.Activity) getContext()) + " unfinishedRouteHeight " + unfinishedRouteHeight + " itemHeight " + itemHeight);
 
         int tempTopLayoutMargin = 0;
         if (topLayoutMargin != 0) {
             tempTopLayoutMargin = topLayoutMargin;
         }
-        topLayoutMargin = displayMetrics.heightPixels - (topLayout.getMeasuredHeight() + bottomView.getMeasuredHeight() + ImmersionBar.getStatusBarHeight((android.app.Activity) getContext()) + AppUtils.getNavigationHeight((android.app.Activity) getContext()));
+        topLayoutMargin = displayMetrics.heightPixels - (topLayout.getMeasuredHeight() + bottomView.getMeasuredHeight() + XScrollViewUtils.getStatusBarHeight((android.app.Activity) getContext()) + XScrollViewUtils.getNavigationHeight((android.app.Activity) getContext()));
 
         dynamicTopLayoutMargin = topLayoutMargin - (int) (itemHeight * ITEM_OFFSET_VALUE + unfinishedRouteHeight);
 
@@ -221,15 +244,15 @@ public class ChooseLocationWidget extends CustomNestedScrollView implements NewL
         // 计算滚动到接近titlebar时，隐藏toplayout布局
         // 顶部高度topMargin：屏幕高度减去titlebar高度和状态栏高度
         // 滚动高度scrollHeight：scrollY是从toplayout的高度开始计算的，所以scrollY加上屏幕高度减去页面初始化后toplayout的高度
-        int topMargin = displayMetrics.heightPixels - titleBarHeight - ImmersionBar.getStatusBarHeight((android.app.Activity) getContext());
+        int topMargin = displayMetrics.heightPixels - titleBarHeight - XScrollViewUtils.getStatusBarHeight((Activity) getContext());
 
-        int scrollHeight = scrollY + (displayMetrics.heightPixels - topLayoutMargin - AppUtils.getNavigationHeight((android.app.Activity) getContext()) - ImmersionBar.getStatusBarHeight((android.app.Activity) getContext()));
+        int scrollHeight = scrollY + (displayMetrics.heightPixels - topLayoutMargin - XScrollViewUtils.getNavigationHeight((Activity) getContext()) - XScrollViewUtils.getStatusBarHeight((android.app.Activity) getContext()));
 
         Log.e("setTopLayoutTopMargin", scrollY + " " + scrollHeight + " " + topMargin + " " + topLayoutMargin);
 
         if (scrollHeight + (int) (itemHeight * ITEM_OFFSET_VALUE + unfinishedRouteHeight) >= topMargin) {
 
-            if (topLayout.getVisibility() == VISIBLE && isVisible) {
+            if (topLayout.getVisibility() == View.VISIBLE && isVisible) {
                 isVisible = false;
                 ObjectAnimatorHelper.alphaAnim(topLayout, new LinearInterpolator(), 100, false);
                 ObjectAnimatorHelper.animEnd(new OnAnimListener() {
@@ -237,15 +260,15 @@ public class ChooseLocationWidget extends CustomNestedScrollView implements NewL
                     public void onAnimationEnd(Animator animation) {
                         super.onAnimationEnd(animation);
 
-                        topLayout.setVisibility(INVISIBLE);
+                        topLayout.setVisibility(View.INVISIBLE);
                         isVisible = true;
                     }
                 });
             }
 
         } else {
-            if (topLayout.getVisibility() == INVISIBLE) {
-                topLayout.setVisibility(VISIBLE);
+            if (topLayout.getVisibility() == View.INVISIBLE) {
+                topLayout.setVisibility(View.VISIBLE);
                 ObjectAnimatorHelper.alphaAnim(topLayout, new LinearInterpolator(), 100, true);
             }
         }
@@ -292,7 +315,7 @@ public class ChooseLocationWidget extends CustomNestedScrollView implements NewL
         private String location;
 
         private void init() {
-            LayoutInflater.from(getContext()).inflate(R.layout.widget_choose_item_location, this);
+            LayoutInflater.from(getContext()).inflate(R.layout.layout_choose_location_item, this);
 
             mTypeIV = (ImageView) findViewById(R.id.type_icon);
             mInputET = (TextView) findViewById(R.id.input_location_et);

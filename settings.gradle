@@ -1,2 +1,3 @@
+include ':XScrollView'
 include ':app'
 rootProject.name='DiDiDemo'
