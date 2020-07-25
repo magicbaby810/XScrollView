@@ -9,7 +9,6 @@ import java.io.Serializable;
 public class Order implements Serializable {
    /**订单状态  */
    public int status;
-   public int userId;
 
 
 }
