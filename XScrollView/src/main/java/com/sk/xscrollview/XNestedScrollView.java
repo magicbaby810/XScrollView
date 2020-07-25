@@ -18,7 +18,7 @@ import androidx.dynamicanimation.animation.SpringAnimation;
  *
  * @author sk on 2019-07-04.
  */
-public class XNestedScrollView extends NestedScrollView implements NestedScrollView.OnScrollChangeListener {
+public abstract class XNestedScrollView extends NestedScrollView implements NestedScrollView.OnScrollChangeListener {
 
     private float startDragY;
     /** 布局顶部距离屏幕顶部的距离*/
@@ -143,4 +143,13 @@ public class XNestedScrollView extends NestedScrollView implements NestedScrollV
     public void setScrollChangeListener(ScrollChangeListener scrollChangeListener) {
         this.scrollChangeListener = scrollChangeListener;
     }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        sizeChanged();
+    }
+
+    protected abstract void sizeChanged();
+
 }

@@ -5,7 +5,7 @@
     style="@style/MainLayoutTopStyle"
     tools:context=".MainActivity">
 
-    <com.sk.commons.view.NoScrollViewPager
+    <com.sk.xscrollviewdemo.view.NoScrollViewPager
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
@@ -21,34 +21,32 @@
             android:orientation="vertical">
 
 
-            <com.sk.dididemo.view.MainTitleBarWidget
+            <com.sk.xscrollviewdemo.view.TitleBarWidget
                 android:id="@+id/title_bar"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/y94"
-                android:background="@color/colorPrimary"
+                android:background="@android:color/white"
                 android:layout_alignParentTop="true" />
 
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/tab_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:tabTextColor="@color/colorPrimary"
-                app:tabIndicatorColor="@color/colorAccent"/>
+                android:background="@android:color/white"
+                app:tabTextColor="@android:color/black"
+                app:tabIndicatorColor="@color/colorPrimary"/>
         </LinearLayout>
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/to_bottom_img"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/x120"
+            android:layout_height="@dimen/x120"
+            android:layout_marginLeft="@dimen/x20"
             android:layout_marginTop="@dimen/x30"
-            android:layout_marginLeft="@dimen/x30"
             android:layout_marginBottom="@dimen/x24"
-            android:alpha="0.8"
-            android:padding="@dimen/x10"
-            android:background="@color/colorPrimary"
+            android:src="@mipmap/home_icon_return"
             android:visibility="gone"
-            android:textColor="@android:color/white"
-            android:text="滚下去"/>
+            app:elevation="@dimen/x10" />
     </RelativeLayout>
 
 </RelativeLayout>

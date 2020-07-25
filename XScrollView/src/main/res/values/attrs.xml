@@ -3,26 +3,20 @@
 
     <declare-styleable name="XScrollView">
 
-        <!-- 提示文字大小 -->
-        <attr name="hintTextMarginTop" format="dimension"/>
-        <!-- 提示文字大小 -->
-        <attr name="hintTextSize" format="dimension"/>
-        <!-- 提示文字颜色 -->
-        <attr name="hintTextColor" format="color"/>
-
-        <!-- 刷新按钮文字大小 -->
-        <attr name="refreshTextSize" format="dimension"/>
-        <!-- 刷新按钮文字颜色 -->
-        <attr name="refreshTextColor" format="color"/>
-        <!-- 刷新按钮背景颜色 -->
-        <attr name="refreshBackground" format="reference"/>
 
 
+
+        <!-- 底布局的顶布局 -->
+        <attr name="topLayout" format="reference"/>
+        <!-- 顶布局下面的布局 -->
+        <attr name="bottomLayout" format="reference"/>
+
+        <attr name="backgroundColor" format="color"/>
 
         <!-- 行程布局 -->
-        <attr name="routeLayout" format="dimension"/>
+        <attr name="routeLayout" format="reference"/>
         <!-- 优惠券布局 -->
-        <attr name="couponLayout" format="color"/>
+        <attr name="couponLayout" format="reference"/>
         <!-- 活动布局 -->
         <attr name="activityLayout" format="reference"/>
 

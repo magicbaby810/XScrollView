@@ -1,40 +1,37 @@
 package com.sk.xscrollview;
 
-import android.animation.Animator;
+import android.animation.LayoutTransition;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnticipateOvershootInterpolator;
-import android.view.animation.LinearInterpolator;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.sk.xscrollview.adapter.XScrollViewAdapter;
-import com.sk.xscrollview.bean.XScrollViewBean;
+import com.sk.xscrollview.utils.XScrollViewHolder;
 import com.sk.xscrollview.utils.XScrollViewUtils;
 
-import java.util.ArrayList;
+import java.util.Collection;
 
 
 /**
  * @author sk
  * @date 2019-7-08
  */
-public class XScrollView extends XNestedScrollView implements XScrollViewAdapter.LayoutChangeListener,
-       XNestedScrollView.ScrollChangeListener {
+public class XScrollView extends XNestedScrollView implements XNestedScrollView.ScrollChangeListener,
+        XScrollViewAdapter.AdapterItemViewListener {
 
 
     /** 滚动到顶部临界点 */
@@ -51,16 +48,19 @@ public class XScrollView extends XNestedScrollView implements XScrollViewAdapter
     private int scrollY;
     /** 未完成行程高度 */
     private int unfinishedRouteHeight = 0;
+    /** 家和公司高度 */
+    private int homeAndCompanyHeight = 0;
     /** recyclerview item高度 */
     private int itemHeight = 0;
+    /** recyclerview divider高度 */
+    private final static int DIVIDER_HEIGHT = 6;
 
-    private ChooseLocationItemWidget mSourceItem;
-    private ChooseLocationItemWidget mDestItem;
-    private TextView useCarNow, useCarPlan;
-    private View bottomView, topLayout;
+    private View topView, bottomView;
+    private LinearLayout backgroundLayout;
+    private RelativeLayout topLayout, bottomLayout;
 
-    private int routeLayoutResourceId, couponLayoutResourceId, activityLayoutResourceId;
-
+    private int routeLayoutResourceId, couponLayoutResourceId, activityLayoutResourceId, topLayoutResourceId, bottomLayoutResourceId;
+    private int backgroundColorResourceId;
 
     private RecyclerView newLandRecyclerView;
 
@@ -68,7 +68,7 @@ public class XScrollView extends XNestedScrollView implements XScrollViewAdapter
 
     private DisplayMetrics displayMetrics;
 
-    private RecyclerView.ItemDecoration itemDecoration;
+    private InitItemViewListener initItemViewListener;
 
 
     public XScrollView(Context context) {
@@ -81,39 +81,40 @@ public class XScrollView extends XNestedScrollView implements XScrollViewAdapter
         init(context, attrs);
     }
 
+    @Override
+    protected void sizeChanged() {
+        changeLayout(0);
+    }
+
     private void init(Context context, AttributeSet attrs) {
         if (null != attrs) {
             TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.XScrollView);
-            hintTextSize = array.getDimension(R.styleable.DefaultPageView_hintTextSize, defaultValue);
-            hintTextColor = array.getColor(R.styleable.DefaultPageView_hintTextColor, defaultValue);
-            hintTextMarginTop = array.getDimension(R.styleable.DefaultPageView_hintTextMarginTop, 120);
 
-            refreshTextSize = array.getDimension(R.styleable.DefaultPageView_refreshTextSize, defaultValue);
-            refreshTextColor = array.getColor(R.styleable.DefaultPageView_refreshTextColor, defaultValue);
+            routeLayoutResourceId = array.getResourceId(R.styleable.XScrollView_routeLayout, -1);
+            couponLayoutResourceId = array.getResourceId(R.styleable.XScrollView_couponLayout, -1);
+            activityLayoutResourceId = array.getResourceId(R.styleable.XScrollView_activityLayout, -1);
 
-            routeLayoutResourceId = array.getLayoutDimension(R.styleable.XScrollView_routeLayout, -1);
-            couponLayoutResourceId = array.getLayoutDimension(R.styleable.XScrollView_couponLayout, -1);
-            activityLayoutResourceId = array.getLayoutDimension(R.styleable.XScrollView_activityLayout, -1);
+            topLayoutResourceId = array.getResourceId(R.styleable.XScrollView_topLayout, -1);
+            bottomLayoutResourceId = array.getResourceId(R.styleable.XScrollView_bottomLayout, -1);
+
+            backgroundColorResourceId = array.getColor(R.styleable.XScrollView_backgroundColor, ContextCompat.getColor(getContext(), android.R.color.transparent));
 
             array.recycle();
         }
 
-
-
-
-
         setScrollChangeListener(this);
 
-        LayoutInflater.from(getContext()).inflate(R.layout.adapter_scroll_view_item, this);
+        LayoutInflater.from(getContext()).inflate(R.layout.layout_scroll_view, this);
         newLandRecyclerView = findViewById(R.id.new_land_view);
         topLayout = findViewById(R.id.top_layout);
-        bottomView = findViewById(R.id.layout);
-        mSourceItem = findViewById(R.id.choose_source_item_widget);
-        mDestItem = findViewById(R.id.choose_dest_item_widget);
-        useCarNow = findViewById(R.id.use_car_now);
-        useCarPlan = findViewById(R.id.use_car_plan);
-        useCarNow.setSelected(true);
+        backgroundLayout = findViewById(R.id.background_layout);
+        bottomLayout = findViewById(R.id.bottom_layout);
 
+        backgroundLayout.setBackgroundColor(backgroundColorResourceId);
+        topView = LayoutInflater.from(getContext()).inflate(topLayoutResourceId, topLayout, false);
+        topLayout.addView(topView);
+        bottomView = LayoutInflater.from(getContext()).inflate(bottomLayoutResourceId, bottomLayout, false);
+        bottomLayout.addView(bottomView);
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext()) {
             @Override
@@ -132,15 +133,14 @@ public class XScrollView extends XNestedScrollView implements XScrollViewAdapter
 
                 changeLayout(v.getMeasuredHeight() >= 0 && v.getMeasuredHeight() < 1500 ? maxHeight : v.getMeasuredHeight());
 
-                if (oldTop == 0) {
-                    ObjectAnimatorHelper.translationYBottomAnim(XScrollView.this, new AnticipateOvershootInterpolator(), 1000, ObjectAnimatorHelper.BOTTOM_TO_VISIBLE, 360f);
-                }
+//                if (oldTop == 0) {
+//                    ObjectAnimatorHelper.translationYBottomAnim(XScrollView.this, new AnticipateOvershootInterpolator(), 1000, ObjectAnimatorHelper.BOTTOM_TO_VISIBLE, 360f);
+//                }
             }
         });
 
         xScrollViewAdapter = new XScrollViewAdapter();
-        xScrollViewAdapter.setLayoutChangeListener(this);
-
+        xScrollViewAdapter.setAdapterItemViewListener(this);
         xScrollViewAdapter.setCouponLayout(couponLayoutResourceId);
         xScrollViewAdapter.setRouteLayout(routeLayoutResourceId);
         xScrollViewAdapter.setActivityLayout(activityLayoutResourceId);
@@ -152,45 +152,24 @@ public class XScrollView extends XNestedScrollView implements XScrollViewAdapter
         if (displayMetrics.heightPixels < 2340) {
             maxHeight = displayMetrics.heightPixels * maxHeight / 2340;
         }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            ((ViewGroup) findViewById(R.id.root_layout)).getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
+        }
     }
 
-    public XScrollView setItemDecoration(RecyclerView.ItemDecoration itemDecoration) {
-        newLandRecyclerView.addItemDecoration(itemDecoration);
-        return this;
-    }
-
-
-    public void setCouponText(Coupon coupon) {
-
-        ArrayList<Coupon> coupons = new ArrayList<>();
-        coupons.add(coupon);
-        coupons.add(coupon);
-        coupons.add(coupon);
-        coupons.add(coupon);
-        coupons.add(coupon);
-        coupons.add(coupon);
+    public void setCouponText(Collection<?> coupons) {
         xScrollViewAdapter.setCouponData(coupons);
     }
 
-    public void setActivityText(Activity activity) {
-
-        ArrayList<Activity> activities = new ArrayList<>();
-        activities.add(activity);
-
+    public void setActivityText(Collection<?> activities) {
         xScrollViewAdapter.setActivityData(activities);
     }
 
-    public void setOrderText(Order order) {
-
-        ArrayList<Order> orders = new ArrayList<>();
-        orders.add(order);
+    public void setOrderText(Collection<?> orders) {
         xScrollViewAdapter.setOrderData(orders);
     }
 
-
-    public void setTitleBarHeight(int height) {
-        titleBarHeight = height;
-    }
 
     @Override
     public void changeLayout(int value) {
@@ -204,35 +183,46 @@ public class XScrollView extends XNestedScrollView implements XScrollViewAdapter
 
     private void setTopLayoutTopMargin(int itemHeight) {
 
-        Log.e("setTopLayoutTopMargin", "topview：" + topLayout.getMeasuredHeight() + " bottomview：" + bottomView.getMeasuredHeight() + " 列表首次展示高度：" + (int) (itemHeight * ITEM_OFFSET_VALUE + unfinishedRouteHeight)
-                + " 状态栏：" + XScrollViewUtils.getStatusBarHeight((android.app.Activity) getContext()) + " 导航栏：" + XScrollViewUtils.getNavigationHeight((android.app.Activity) getContext()) + " unfinishedRouteHeight " + unfinishedRouteHeight + " itemHeight " + itemHeight);
+        //Log.e("setTopLayoutTopMargin", "topview：" + topLayout.getMeasuredHeight() + " bottomview：" + bottomView.getMeasuredHeight() + " 列表首次展示高度：" + calculateOffsetHeight(itemHeight) + " 状态栏：" + ImmersionBar.getStatusBarHeight((Activity) getContext()) + " 导航栏：" + AppUtils.getNavigationHeight((Activity) getContext()) + " unfinishedRouteHeight " + unfinishedRouteHeight + " itemHeight " + itemHeight);
 
         int tempTopLayoutMargin = 0;
         if (topLayoutMargin != 0) {
             tempTopLayoutMargin = topLayoutMargin;
         }
-        topLayoutMargin = displayMetrics.heightPixels - (topLayout.getMeasuredHeight() + bottomView.getMeasuredHeight() + XScrollViewUtils.getStatusBarHeight((android.app.Activity) getContext()) + XScrollViewUtils.getNavigationHeight((android.app.Activity) getContext()));
+        topLayoutMargin = displayMetrics.heightPixels - (topLayout.getMeasuredHeight() + bottomLayout.getMeasuredHeight() + XScrollViewUtils.getStatusBarHeight((Activity) getContext()) + XScrollViewUtils.getNavigationHeight((Activity) getContext()));
 
-        dynamicTopLayoutMargin = topLayoutMargin - (int) (itemHeight * ITEM_OFFSET_VALUE + unfinishedRouteHeight);
+        dynamicTopLayoutMargin = topLayoutMargin - calculateOffsetHeight(itemHeight);
 
-        // 此处是防止底布局高度过高遮挡住地图中心的图钉，如果你有这样的需求请把注释清掉
-//        if (dynamicTopLayoutMargin < displayMetrics.heightPixels / 2) {
-//            dynamicTopLayoutMargin = displayMetrics.heightPixels / 2 - 100;
-//        }
+        // 底布局不越过屏幕的一半
+        if (dynamicTopLayoutMargin < (displayMetrics.heightPixels - (XScrollViewUtils.getStatusBarHeight((Activity) getContext()) + XScrollViewUtils.getNavigationHeight((Activity) getContext()))) / 2) {
+            dynamicTopLayoutMargin = (displayMetrics.heightPixels - (XScrollViewUtils.getStatusBarHeight((Activity) getContext()) + XScrollViewUtils.getNavigationHeight((Activity) getContext()))) / 2 - 100;
+        }
 
         LinearLayout.LayoutParams ll = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         ll.topMargin = dynamicTopLayoutMargin;
         topLayout.setLayoutParams(ll);
 
         int happyTogether = scrollY + (tempTopLayoutMargin - topLayoutMargin);
-        // negative number is nothing
         if (happyTogether > 0) {
             scrollChange(scrollY);
         }
-        Log.e("setTopLayoutTopMargin", dynamicTopLayoutMargin + " " + topLayoutMargin);
+        //Log.e("setTopLayoutTopMargin", dynamicTopLayoutMargin + " " + topLayoutMargin);
     }
 
-    boolean isVisible = true;
+    private int calculateOffsetHeight(int itemHeight) {
+
+        int tempHeight = 0;
+        if (0 != unfinishedRouteHeight && 0 != homeAndCompanyHeight) {
+            return unfinishedRouteHeight + homeAndCompanyHeight - 10;
+        } else if (0 == unfinishedRouteHeight && 0 != homeAndCompanyHeight) {
+            tempHeight = homeAndCompanyHeight;
+        } else if (0 == homeAndCompanyHeight && 0 != unfinishedRouteHeight) {
+            tempHeight = unfinishedRouteHeight;
+        }
+
+        return (int) (itemHeight * ITEM_OFFSET_VALUE + tempHeight);
+    }
+
     @Override
     public void scrollChange(int scrollY) {
         this.scrollY = scrollY;
@@ -240,88 +230,91 @@ public class XScrollView extends XNestedScrollView implements XScrollViewAdapter
         // 动态设置topLayout的距离顶部的高度
         setTopHeight(topLayout.getTop() - scrollY + topLayout.getMeasuredHeight());
 
-
-        // 计算滚动到接近titlebar时，隐藏toplayout布局
-        // 顶部高度topMargin：屏幕高度减去titlebar高度和状态栏高度
-        // 滚动高度scrollHeight：scrollY是从toplayout的高度开始计算的，所以scrollY加上屏幕高度减去页面初始化后toplayout的高度
         int topMargin = displayMetrics.heightPixels - titleBarHeight - XScrollViewUtils.getStatusBarHeight((Activity) getContext());
 
-        int scrollHeight = scrollY + (displayMetrics.heightPixels - topLayoutMargin - XScrollViewUtils.getNavigationHeight((Activity) getContext()) - XScrollViewUtils.getStatusBarHeight((android.app.Activity) getContext()));
+        //int scrollHeight = scrollY + (displayMetrics.heightPixels - topLayoutMargin - AppUtils.getNavigationHeight((Activity) getContext()) - ImmersionBar.getStatusBarHeight((Activity) getContext()));
 
-        Log.e("setTopLayoutTopMargin", scrollY + " " + scrollHeight + " " + topMargin + " " + topLayoutMargin);
+        //int scrollHeightOffset = scrollHeight + calculateOffsetHeight(itemHeight);
+        int scrollHeightOffset = scrollY + (displayMetrics.heightPixels - topLayout.getTop() - XScrollViewUtils.getStatusBarHeight((Activity) getContext()));
+        //Log.e("setTopLayoutTopMargin", scrollY + " " + topMargin + " " + topLayoutMargin + " " + titleBarHeight + " " + scrollHeightOffset);
 
-        if (scrollHeight + (int) (itemHeight * ITEM_OFFSET_VALUE + unfinishedRouteHeight) >= topMargin) {
+        if (scrollHeightOffset >= topMargin) {
 
-            if (topLayout.getVisibility() == View.VISIBLE && isVisible) {
-                isVisible = false;
-                ObjectAnimatorHelper.alphaAnim(topLayout, new LinearInterpolator(), 100, false);
-                ObjectAnimatorHelper.animEnd(new OnAnimListener() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        super.onAnimationEnd(animation);
-
-                        topLayout.setVisibility(View.INVISIBLE);
-                        isVisible = true;
-                    }
-                });
+            if (null != initItemViewListener) {
+                initItemViewListener.animTopLayoutGone(topLayout);
             }
 
         } else {
-            if (topLayout.getVisibility() == View.INVISIBLE) {
-                topLayout.setVisibility(View.VISIBLE);
-                ObjectAnimatorHelper.alphaAnim(topLayout, new LinearInterpolator(), 100, true);
+            if (null != initItemViewListener) {
+                initItemViewListener.animTopLayoutVisible(topLayout);
             }
         }
 
-        boolean touchMoon = scrollHeight + (int) (itemHeight * ITEM_OFFSET_VALUE + unfinishedRouteHeight) >= (topMargin + topLayout.getMeasuredHeight() - 30);
+        boolean touchMoon = scrollHeightOffset - topLayout.getMeasuredHeight() >= topMargin;
 
-        // 更新titlebar
-
-        RxBus.getDefault().post(new RefreshTitleBarEvent(touchMoon));
+        if (null != initItemViewListener) {
+            initItemViewListener.animTitleBar(touchMoon);
+        }
     }
 
-    public static class ChooseLocationItemWidget extends RelativeLayout {
-        public ChooseLocationItemWidget(Context context) {
-            super(context);
-            init();
+    @Override
+    public void initRouteView(XScrollViewHolder holder, int position) {
+        if (null != initItemViewListener) {
+            initItemViewListener.initRouteView(holder, position);
         }
+    }
 
-        public ChooseLocationItemWidget(Context context, AttributeSet attrs) {
-            super(context, attrs);
-            init();
+    @Override
+    public void initCouponView(XScrollViewHolder holder, int position) {
+        if (null != initItemViewListener) {
+            initItemViewListener.initCouponView(holder, position);
         }
+    }
 
-        public ChooseLocationItemWidget(Context context, AttributeSet attrs, int defStyleAttr) {
-            super(context, attrs, defStyleAttr);
-            init();
+    @Override
+    public void initActivityView(XScrollViewHolder holder, int position) {
+        if (null != initItemViewListener) {
+            initItemViewListener.initActivityView(holder, position);
         }
+    }
 
-        /**
-         * 默认开始地点
-         */
-        public static final int SOURCE_TYPE = 0;
-        /**
-         * 下车地点
-         */
-        public static final int DEST_TYPE = 1;
-        /**
-         * 移动中
-         */
-        public static final int START_MOVE = 2;
+    @Override
+    public void setTitleBarHeight(int height) {
+        titleBarHeight = height;
+    }
 
-        private ImageView mTypeIV;
-        private TextView mInputET;
+    @Override
+    public void unfinishedRouteHeight(int height) {
+        unfinishedRouteHeight = height + XScrollViewUtils.dip2px(getContext(), DIVIDER_HEIGHT);
+    }
 
-        private String location;
+    @Override
+    public void homeAndCompanyHeight(int height) {
 
-        private void init() {
-            LayoutInflater.from(getContext()).inflate(R.layout.layout_choose_location_item, this);
+    }
 
-            mTypeIV = (ImageView) findViewById(R.id.type_icon);
-            mInputET = (TextView) findViewById(R.id.input_location_et);
+    public void setInitItemViewListener(InitItemViewListener initItemViewListener) {
+        this.initItemViewListener = initItemViewListener;
 
+        if (null != initItemViewListener) {
+            initItemViewListener.initTopLayoutView(topView);
+            initItemViewListener.initBottomLayoutView(bottomView);
         }
+    }
 
+    public interface InitItemViewListener {
+
+        void initRouteView(XScrollViewHolder holder, int position);
+        void initCouponView(XScrollViewHolder holder, int position);
+        void initActivityView(XScrollViewHolder holder, int position);
+
+        void initTopLayoutView(View view);
+        void initBottomLayoutView(View view);
+
+        void animTopLayoutVisible(View view);
+        void animTopLayoutGone(View view);
+
+        void animTitleBar(boolean touchMoon);
     }
 
 

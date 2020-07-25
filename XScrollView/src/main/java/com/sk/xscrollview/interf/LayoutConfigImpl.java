@@ -45,8 +45,7 @@ package com.sk.xscrollview.interf;
  * |
  * |
  *
- * @author liujia on 2020/7/15
- * contact magicbaby810@gmail.com
+ * @author sk on 2020/7/15
  */
 
 

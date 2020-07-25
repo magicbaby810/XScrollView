@@ -1,18 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/white">
 
-    <com.amap.api.maps.MapView
+    <com.amap.api.maps.TextureMapView
         android:id="@+id/map_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
     <com.sk.xscrollview.XScrollView
-        android:id="@+id/choose_location_widget"
+        android:id="@+id/scroll_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        app:routeLayout="@layout/item_new_land_route"
+        app:couponLayout="@layout/item_new_land_coupon"
+        app:activityLayout="@layout/item_new_land_activities"
+        app:topLayout="@layout/layout_top_layout"
+        app:bottomLayout="@layout/layout_bottom_layout"
+        app:backgroundColor="@android:color/white"/>
 
 </RelativeLayout>

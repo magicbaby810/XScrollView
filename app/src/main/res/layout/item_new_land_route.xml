@@ -4,10 +4,14 @@
     android:layout_height="wrap_content"
     android:id="@+id/route_layout"
     android:background="@drawable/shape_common_gray_corner"
+    android:layout_marginLeft="@dimen/x32"
+    android:layout_marginRight="@dimen/x32"
+    android:layout_marginTop="@dimen/x20"
     android:padding="@dimen/x20">
 
 
     <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"

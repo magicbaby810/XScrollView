@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/loc_call"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/darker_gray"
+        android:padding="@dimen/x10"
+        android:gravity="center"
+        android:layout_marginLeft="@dimen/x30"
+        android:layout_marginBottom="@dimen/x20"
+        android:textColor="@android:color/white"
+        android:text="安全中心"/>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/location_img"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/x10"
+        android:background="@android:color/darker_gray"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="@dimen/x30"
+        android:layout_marginBottom="@dimen/x20"
+        android:gravity="center"
+        android:text="定位"
+        android:textColor="@android:color/white"
+        android:elevation="@dimen/x4" />
+
+</RelativeLayout>

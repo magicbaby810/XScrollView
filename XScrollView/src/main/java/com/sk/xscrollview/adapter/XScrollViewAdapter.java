@@ -1,31 +1,26 @@
 package com.sk.xscrollview.adapter;
 
 import android.content.Context;
-import android.text.SpannableString;
-import android.text.style.RelativeSizeSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.widget.AppCompatImageView;
-import androidx.appcompat.widget.AppCompatTextView;
+
 import androidx.recyclerview.widget.RecyclerView;
 
-
-import com.sk.xscrollview.R;
 import com.sk.xscrollview.bean.XScrollViewBean;
 import com.sk.xscrollview.interf.LayoutConfigImpl;
-import com.sk.xscrollview.utils.SuperViewHolder;
+import com.sk.xscrollview.utils.XScrollViewHolder;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * @author sk on 2019-07-02.
  */
-public class XScrollViewAdapter extends ListBaseAdapter<SuperViewHolder> implements LayoutConfigImpl {
+public class XScrollViewAdapter extends RecyclerView.Adapter<XScrollViewHolder> implements LayoutConfigImpl {
 
 
     /**行程位置*/
@@ -51,25 +46,21 @@ public class XScrollViewAdapter extends ListBaseAdapter<SuperViewHolder> impleme
     private int itemCount = 0;
     private XScrollViewBean entity = new XScrollViewBean();
 
-    private LayoutChangeListener layoutChangeListener;
-
-    public XScrollViewAdapter(Context context) {
-        super(context);
-    }
+    private AdapterItemViewListener adapterItemViewListener;
 
 
     @Override
-    public SuperViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public XScrollViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         switch (viewType) {
             case ROUTE_INDEX:
                 routeItemView = LayoutInflater.from(parent.getContext()).inflate(routeResourceId, parent, false);
-                return new SuperViewHolder(routeItemView);
+                return new XScrollViewHolder(routeItemView);
             case COUPON_INDEX:
                 couponItemView = LayoutInflater.from(parent.getContext()).inflate(couponResourceId, parent, false);
-                return new SuperViewHolder(couponItemView);
+                return new XScrollViewHolder(couponItemView);
             case ACTIVITIES_INDEX:
                 activityItemView = LayoutInflater.from(parent.getContext()).inflate(activityResourceId, parent, false);
-                return new SuperViewHolder(activityItemView);
+                return new XScrollViewHolder(activityItemView);
             default:
                 Log.d("error","viewholder is null");
                 return null;
@@ -78,7 +69,7 @@ public class XScrollViewAdapter extends ListBaseAdapter<SuperViewHolder> impleme
 
 
     @Override
-    public void onBindViewHolder(SuperViewHolder holder, int position) {
+    public void onBindViewHolder(final XScrollViewHolder holder, final int position) {
         if (holder.itemView.equals(routeItemView)) {
             bindTypeRoute(holder, position);
         } else if (holder.itemView.equals(couponItemView)) {
@@ -91,17 +82,13 @@ public class XScrollViewAdapter extends ListBaseAdapter<SuperViewHolder> impleme
         holder.itemView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                if (null != layoutChangeListener && position == 0) {
-                    layoutChangeListener.changeLayout(holder.itemView.getHeight());
+                if (null != adapterItemViewListener && position == 0) {
+                    adapterItemViewListener.changeLayout(holder.itemView.getHeight());
                 }
             }
         });
     }
 
-    @Override
-    public void onBindItemHolder(SuperViewHolder holder, int position) {
-
-    }
 
     @Override
     public void setRouteLayout(int resourceId) {
@@ -118,64 +105,53 @@ public class XScrollViewAdapter extends ListBaseAdapter<SuperViewHolder> impleme
         this.activityResourceId = resourceId;
     }
 
-    private void bindTypeRoute(final SuperViewHolder holder, final int position) {
+    private void bindTypeRoute(final XScrollViewHolder holder, final int position) {
         final ArrayList<Object> orders = entity.orders;
         if (orders != null && orders.size() > 0) {
 
-
-
-
-        } else {
-            LinearLayout.LayoutParams ll = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0);
-            holder.itemView.setLayoutParams(ll);
-        }
-    }
-
-
-    private void bindTypeCoupon(final SuperViewHolder holder, final int position) {
-        final ArrayList<Object> coupons = entity.coupons;
-        if (coupons != null && coupons.size() > 0) {
-
-
-            AppCompatTextView money = holder.itemView.findViewById(R.id.tv_coupon_rebate);
-
-            Coupon coupon = coupons.get(0);
-            if (null != coupon) {
-                SpannableString builderMoney;
-                String text = AppUtils.getMoney(coupon.faceValue).replace(".00", "");
-                if (text.contains(".") && text.endsWith("0")) {
-                    text = text.substring(0, text.length() - 1);
-                }
-                text = text + "元";
-                builderMoney = new SpannableString(text);
-                builderMoney.setSpan(new RelativeSizeSpan(2), 0, text.length() - 1, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
-                money.setText(builderMoney);
+            if (null != adapterItemViewListener) {
+                adapterItemViewListener.initRouteView(holder, position);
             }
 
-            holder.seeMoreText.setOnClickListener(new View.OnClickListener() {
+            holder.itemView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
                 @Override
-                public void onClick(View v) {
-
+                public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) {
+                    if (null != adapterItemViewListener) {
+                        adapterItemViewListener.unfinishedRouteHeight(holder.itemView.getMeasuredHeight());
+                    }
                 }
             });
 
-        } else {
-            LinearLayout.LayoutParams ll = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0);
-            holder.itemView.setLayoutParams(ll);
         }
+
+        holder.itemView.setVisibility(orders != null && orders.size() > 0 ? View.VISIBLE : View.GONE);
     }
 
 
-    private void bindTypeActivities(final SuperViewHolder holder, final int position) {
+    private void bindTypeCoupon(final XScrollViewHolder holder, final int position) {
+        final ArrayList<Object> coupons = entity.coupons;
+        if (coupons != null && coupons.size() > 0) {
+
+            if (null != adapterItemViewListener) {
+                adapterItemViewListener.initCouponView(holder, position);
+            }
+
+        }
+
+        holder.itemView.setVisibility(coupons != null && coupons.size() > 0 ? View.VISIBLE : View.GONE);
+    }
+
+
+    private void bindTypeActivities(final XScrollViewHolder holder, final int position) {
         final ArrayList<Object> messages = entity.activities;
         if (messages != null && messages.size() > 0) {
 
-
-
-        } else {
-            LinearLayout.LayoutParams ll = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0);
-            holder.itemView.setLayoutParams(ll);
+            if (null != adapterItemViewListener) {
+                adapterItemViewListener.initActivityView(holder, position);
+            }
         }
+
+        holder.itemView.setVisibility(messages != null && messages.size() > 0 ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -203,28 +179,56 @@ public class XScrollViewAdapter extends ListBaseAdapter<SuperViewHolder> impleme
         notifyDataSetChanged();
     }
 
-    public void setActivityData(ArrayList<Object> activities) {
-        entity.activities = activities;
+    public void setActivityData(Collection<?> activities) {
+        if (null == this.entity.activities) {
+            this.entity.activities = new ArrayList<>();
+        } else {
+            this.entity.activities.clear();
+        }
+        this.entity.activities.addAll(activities);
+
         setData(entity);
     }
 
 
-    public void setCouponData(ArrayList<Object> coupons) {
-        this.entity.coupons = coupons;
+    public void setCouponData(Collection<?> coupons) {
+        if (null == this.entity.coupons) {
+            this.entity.coupons = new ArrayList<>();
+        } else {
+            this.entity.coupons.clear();
+        }
+        this.entity.coupons.addAll(coupons);
+
         setData(entity);
     }
 
-    public void setOrderData(ArrayList<Object> orders) {
-        this.entity.orders = orders;
+    public void setOrderData(Collection<?> orders) {
+        if (null == this.entity.orders) {
+            this.entity.orders = new ArrayList<>();
+        } else {
+            this.entity.orders.clear();
+        }
+        this.entity.orders.addAll(orders);
+
         setData(entity);
     }
 
-    public interface LayoutChangeListener {
+    public void setAdapterItemViewListener(AdapterItemViewListener adapterItemViewListener) {
+        this.adapterItemViewListener = adapterItemViewListener;
+    }
+
+    public interface AdapterItemViewListener {
+
         void changeLayout(int value);
-    }
 
-    public void setLayoutChangeListener(LayoutChangeListener layoutChangeListener) {
-        this.layoutChangeListener = layoutChangeListener;
+        void initRouteView(XScrollViewHolder holder, int position);
+        void initCouponView(XScrollViewHolder holder, int position);
+        void initActivityView(XScrollViewHolder holder, int position);
+
+        void setTitleBarHeight(int height);
+
+        void unfinishedRouteHeight(int height);
+        void homeAndCompanyHeight(int height);
     }
 
 }

@@ -8,6 +8,9 @@
     android:paddingRight="@dimen/x26"
     android:paddingTop="@dimen/x20"
     android:paddingBottom="@dimen/x20"
+    android:layout_marginLeft="@dimen/x32"
+    android:layout_marginRight="@dimen/x32"
+    android:layout_marginTop="@dimen/x20"
     android:background="@drawable/shape_common_gray_corner">
 
     <LinearLayout
