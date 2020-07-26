@@ -23,8 +23,12 @@
 	
 #### 三部分均可自定义布局，XScrollView只负责承载和滑动功能。
 <br />
+
+
 ## 使用
+
 #### 必须设置
+
 1. dependencies 下
 	
 	```java 
@@ -57,9 +61,7 @@
   
 3. `xScrollView.setTitleBar`，需要把`TitleBar`传入`XScrollView`中，这样才能触发动效。照demo实现下。
 
-4. 初始化  ```
-	xScrollView.setInitItemViewListener(this);
-	```
+4. 初始化  ```xScrollView.setInitItemViewListener(this);```
 	
 	```
 	public interface InitItemViewListener {
@@ -76,8 +78,10 @@
 	
         void animTitleBar(boolean touchMoon);
     }
-	```    
+	```  
+	  
 	`InitItemViewListener`接口中，有8个抽象方法
+	
 	
 	```
 	void initRouteView(XScrollViewHolder holder, int position);
@@ -87,7 +91,9 @@
 	void initTopLayoutView(View view);
 	void initBottomLayoutView(View view);
 	```
+	
 	上面5个实现后自行初始化对应的布局
+	
 	
 	`animTopLayoutVisible`和`animTopLayoutGone`控制TopLayout布局在滑动到靠近	`TitleBar`时的显示和隐藏动效
 	
