@@ -3,6 +3,7 @@
 
 
 是不是你想要的，先看效果
+<img src="https://github.com/magicbaby810/XScrollView/tree/master/app/src/main/res/raw/demo_video.gif" alt="show" />
 ![image](https://github.com/magicbaby810/XScrollView/tree/master/app/src/main/res/raw/demo_video.gif)
 
 ### XScrollView 三部分
