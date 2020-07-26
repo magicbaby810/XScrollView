@@ -225,8 +225,6 @@ public class XScrollViewAdapter extends RecyclerView.Adapter<XScrollViewHolder> 
         void initCouponView(XScrollViewHolder holder, int position);
         void initActivityView(XScrollViewHolder holder, int position);
 
-        void setTitleBarHeight(int height);
-
         void unfinishedRouteHeight(int height);
         void homeAndCompanyHeight(int height);
     }

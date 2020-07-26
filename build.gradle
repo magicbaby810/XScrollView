@@ -4,7 +4,6 @@ buildscript {
     repositories {
         google()
         jcenter()
-        maven { url 'https://dl.bintray.com/magicbaby/maven' }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.4.2'
@@ -20,7 +19,6 @@ allprojects {
     repositories {
         google()
         jcenter()
-        maven { url 'https://dl.bintray.com/magicbaby/maven' }
     }
 }
 

@@ -4,6 +4,7 @@
     android:layout_height="wrap_content"
     android:layout_marginLeft="@dimen/x32"
     android:layout_marginRight="@dimen/x32"
+    android:layout_marginTop="@dimen/x20"
     android:background="@color/colorPrimary"
     android:orientation="vertical">
 

@@ -33,7 +33,12 @@ publish {
     repoName = "maven"   //bintray上常见的仓库的名字
     groupId = 'com.sk.xscrollview'//groupId  一般为包名
     artifactId = 'xscrollview'//artifactId 一般为项目名称
-    publishVersion = '0.0.1'//版本号
+    publishVersion = '0.0.3'//版本号
     desc = ''//描述，不重要
     website = 'https://github.com/magicbaby810/XScrollView'//网站,一般是GitHub的项目地址，一定要是可以访问到的地址
+}
+
+afterEvaluate {
+    generateReleaseBuildConfig.enabled = false
+    generateDebugBuildConfig.enabled = false
 }

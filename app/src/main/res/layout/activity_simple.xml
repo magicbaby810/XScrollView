@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/textcolor_ed">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        app:title="@string/app_name" />
+
+
+    <com.sk.xscrollview.XScrollView
+        android:id="@+id/scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:routeLayout="@layout/item_new_land_route"
+        app:couponLayout="@layout/item_new_land_coupon"
+        app:activityLayout="@layout/item_new_land_activities"
+        app:topLayout="@layout/layout_top_layout"
+        app:bottomLayout="@layout/layout_bottom_layout"
+        app:backgroundColor="@android:color/white"/>
+
+</RelativeLayout>

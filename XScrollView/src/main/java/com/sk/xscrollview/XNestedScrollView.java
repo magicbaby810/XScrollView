@@ -131,7 +131,7 @@ public abstract class XNestedScrollView extends NestedScrollView implements Nest
     @Override
     public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
         if (null != scrollChangeListener) {
-            Log.e("scroll", scrollY + " " + oldScrollY);
+//            Log.e(XScrollView.TAG, "onScrollChange " + scrollY + " " + oldScrollY);
             scrollChangeListener.scrollChange(scrollY);
         }
     }
