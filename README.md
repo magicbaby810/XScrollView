@@ -2,9 +2,11 @@
 ### 信息流滑动效果 
 
 
-是不是你想要的，先看效果
-<img src="https://github.com/magicbaby810/XScrollView/tree/master/app/src/main/res/raw/demo_video.gif" alt="show" />
-![image](https://github.com/magicbaby810/XScrollView/tree/master/app/src/main/res/raw/demo_video.gif)
+是不是你想要的，先看效果  
+
+<img src="https://github.com/magicbaby810/XScrollView/tree/master/app/src/main/res/mipmap-xxhdpi/demo_video.gif" alt="show" />  
+
+![image](https://github.com/magicbaby810/XScrollView/tree/master/app/src/main/res/mipmap-xxhdpi/demo_video.gif)
 
 ### XScrollView 三部分
 
@@ -23,10 +25,11 @@
 #### 三部分均可自定义布局，XScrollView只负责承载和滑动功能。
 <br />
 ## 使用
+#### 必须设置
 1. dependencies 下
 	
 	```java 
-	implementation 'com.sk.xscrollview:xscrollview:0.0.3'
+	implementation 'com.sk.xscrollview:xscrollview:0.0.4'
 	```
 
 2. xml中`layout_width`和`layout_height`必须是`match_parent`，必须撑满全屏。
@@ -52,8 +55,10 @@
 	- `app:activityLayout`: 自定义活动广告布局
 	- `app:backgroundColor`: 自定义从`BottomLayout`往下布局的背景色  
   
+  
+3. `xScrollView.setTitleBar`，需要把`TitleBar`传入`XScrollView`中，这样才能触发动效。照demo实现下。
 
-3. 初始化  ```
+4. 初始化  ```
 	xScrollView.setInitItemViewListener(this);
 	```
 	
@@ -93,9 +98,9 @@
 	
 	<br />
 	
-4. `xScrollView.setTitleBarHeight`，需要把`TitleBar`的高度传入	`XScrollView`中，这样才能触发动效。照demo实现下。
- 
-5. `xScrollView.setItemOffsetValue`可以设置`RecyclerView`预展示部分高度
+
+### 自行设置 
+1. `xScrollView.setItemOffsetValue`可以设置`RecyclerView`预展示部分高度
 	
 	  
 <br /><br />
