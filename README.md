@@ -6,7 +6,7 @@
 
 <img src="https://github.com/magicbaby810/XScrollView/tree/master/app/src/main/res/mipmap-xxhdpi/demo_video.gif" alt="show" />  
 
-![image](https://github.com/magicbaby810/XScrollView/tree/master/app/src/main/res/mipmap-xxhdpi/demo_video.gif)
+![image](https://github.com/magicbaby810/XScrollView/tree/master/app/src//demo_video.gif)
 
 ### XScrollView 三部分
 
