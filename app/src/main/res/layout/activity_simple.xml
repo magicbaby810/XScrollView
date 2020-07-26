@@ -24,4 +24,15 @@
         app:bottomLayout="@layout/layout_bottom_layout"
         app:backgroundColor="@android:color/white"/>
 
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/to_bottom_img"
+        android:layout_width="@dimen/x120"
+        android:layout_height="@dimen/x120"
+        android:layout_marginLeft="@dimen/x20"
+        android:layout_marginTop="@dimen/x30"
+        android:layout_marginBottom="@dimen/x24"
+        android:src="@mipmap/home_icon_return"
+        android:visibility="gone"
+        app:elevation="@dimen/x10" />
+
 </RelativeLayout>

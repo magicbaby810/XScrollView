@@ -36,8 +36,8 @@ public class XScrollView extends XNestedScrollView implements XNestedScrollView.
 
     public final static String TAG = "XScrollView";
 
-    /** 滚动到顶部临界点 */
-    private int titleBarHeight;
+    /** 滚动到顶部的 */
+    private View titleBar;
     /** 固定toplayout到底部距离 */
     private int topLayoutMargin;
     /** 动态toplayout距离顶部的距离 */
@@ -233,13 +233,13 @@ public class XScrollView extends XNestedScrollView implements XNestedScrollView.
         // 动态设置topLayout的距离顶部的高度
         setTopHeight(topLayout.getTop() - scrollY + topLayout.getMeasuredHeight());
 
-        int topMargin = displayMetrics.heightPixels - titleBarHeight - XScrollViewUtils.getStatusBarHeight((Activity) getContext());
+        int topMargin = displayMetrics.heightPixels - titleBar.getMeasuredHeight() - XScrollViewUtils.getStatusBarHeight((Activity) getContext());
 
 //        int scrollHeight = scrollY + (displayMetrics.heightPixels - topLayoutMargin - XScrollViewUtils.getNavigationHeight((Activity) getContext()) - XScrollViewUtils.getStatusBarHeight((Activity) getContext()));
 
         //int scrollHeightOffset = scrollHeight + calculateOffsetHeight(itemHeight);
         int scrollHeightOffset = scrollY + (displayMetrics.heightPixels - topLayout.getTop() - XScrollViewUtils.getStatusBarHeight((Activity) getContext()));
-        //Log.e(TAG, scrollY + " " + topMargin + " " + topLayoutMargin + " " + titleBarHeight + " " + scrollHeightOffset);
+        //Log.e(TAG, scrollY + " " + topMargin + " " + topLayoutMargin + " " + titleBar.getMeasuredHeight() + " " + scrollHeightOffset);
 
         if (scrollHeightOffset >= topMargin) {
 
@@ -281,8 +281,8 @@ public class XScrollView extends XNestedScrollView implements XNestedScrollView.
         }
     }
 
-    public void setTitleBarHeight(int height) {
-        titleBarHeight = height;
+    public void setTitleBar(View titleBar) {
+        this.titleBar = titleBar;
     }
 
     public void setItemOffsetValue(float itemOffsetValue) {

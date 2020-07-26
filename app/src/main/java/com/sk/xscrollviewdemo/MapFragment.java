@@ -52,12 +52,17 @@ public class MapFragment extends Fragment implements XScrollView.InitItemViewLis
     private LocationItemView mDestItem;
     private TextView useCarNow, useCarPlan;
 
+    private View titleBar;
+
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Log.e("titleBar", "3");
         View view = inflater.inflate(R.layout.fragment_map, container, false);
+        Log.e("titleBar", "0");
         ButterKnife.bind(this, view);
+        Log.e("titleBar", "2");
         initView();
         return view;
     }
@@ -69,20 +74,24 @@ public class MapFragment extends Fragment implements XScrollView.InitItemViewLis
     }
 
     private void initView() {
+        xScrollView.setTitleBar(titleBar);
         xScrollView.setInitItemViewListener(this);
 
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
+                orders.clear();
                 Order order = new Order();
                 orders.add(order);
                 xScrollView.setOrderText(orders);
 
+                coupons.clear();
                 Coupon coupon = new Coupon();
                 coupons.add(coupon);
                 xScrollView.setCouponText(coupons);
 
+                activities.clear();
                 Activity activity = new Activity();
                 activities.add(activity);
                 xScrollView.setActivityText(activities);
@@ -201,6 +210,10 @@ public class MapFragment extends Fragment implements XScrollView.InitItemViewLis
     @Override
     public void animTitleBar(boolean touchMoon) {
         ((MainActivity) getActivity()).animTitleBar(touchMoon);
+    }
+
+    public void setTitleBar(View titleBar) {
+        this.titleBar = titleBar;
     }
 
 

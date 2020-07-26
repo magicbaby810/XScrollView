@@ -3,9 +3,13 @@ package com.sk.xscrollviewdemo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
+import android.view.animation.AnticipateOvershootInterpolator;
+import android.view.animation.LinearInterpolator;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatImageView;
+import androidx.appcompat.widget.AppCompatTextView;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.sk.xscrollview.XScrollView;
@@ -18,6 +22,10 @@ import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
+
+import static com.sk.xscrollviewdemo.AnimatorUtils.TOP_TO_GONE;
+import static com.sk.xscrollviewdemo.AnimatorUtils.TOP_TO_VISIBLE;
 
 /**
  * |                   quu..__
@@ -69,15 +77,18 @@ import butterknife.ButterKnife;
  */
 
 
-public class SimpleActivity extends AppCompatActivity implements XScrollView.InitItemViewListener, View.OnLayoutChangeListener {
+public class SimpleActivity extends AppCompatActivity implements XScrollView.InitItemViewListener {
 
     @BindView(R.id.scroll_view)
     XScrollView xScrollView;
     @BindView(R.id.title_bar)
     MaterialToolbar titleBar;
+    @BindView(R.id.to_bottom_img)
+    AppCompatImageView toBottomImg;
 
 
     private ArrayList<Order> orders = new ArrayList<>();
+    private ArrayList<Coupon> coupons = new ArrayList<>();
     private ArrayList<Activity> activities = new ArrayList<>();
 
 
@@ -87,9 +98,8 @@ public class SimpleActivity extends AppCompatActivity implements XScrollView.Ini
         setContentView(R.layout.activity_simple);
         ButterKnife.bind(this);
 
-        titleBar.addOnLayoutChangeListener(this);
         xScrollView.setInitItemViewListener(this);
-
+        xScrollView.setTitleBar(titleBar);
         // 设置recyclerview 可以展示部分
         xScrollView.setItemOffsetValue(0.2f);
 
@@ -101,10 +111,10 @@ public class SimpleActivity extends AppCompatActivity implements XScrollView.Ini
                 orders.add(order);
                 xScrollView.setOrderText(orders);
 
-//                Coupon coupon = new Coupon();
-//                coupons.add(coupon);
-//                xScrollView.setCouponText(coupons);
-//
+                Coupon coupon = new Coupon();
+                coupons.add(coupon);
+                xScrollView.setCouponText(coupons);
+
                 Activity activity = new Activity();
                 activities.add(activity);
                 xScrollView.setActivityText(activities);
@@ -130,7 +140,22 @@ public class SimpleActivity extends AppCompatActivity implements XScrollView.Ini
 
     @Override
     public void initTopLayoutView(View view) {
-
+        AppCompatTextView locationImg = view.findViewById(R.id.location_img);
+        locationImg.setOnClickListener(new View.OnClickListener() {
+            boolean index = false;
+            @Override
+            public void onClick(View view) {
+                if (index) {
+                    activities.clear();
+                } else {
+                    Activity activity = new Activity();
+                    activities.add(activity);
+                    activities.add(activity);
+                }
+                index = !index;
+                xScrollView.setActivityText(activities);
+            }
+        });
     }
 
     @Override
@@ -140,21 +165,47 @@ public class SimpleActivity extends AppCompatActivity implements XScrollView.Ini
 
     @Override
     public void animTopLayoutVisible(View view) {
-
+        if (!isTopLayoutVisible) {
+            isTopLayoutVisible = true;
+            AnimatorUtils.alphaAnim(view, new LinearInterpolator(), 100, true);
+        }
     }
 
+    boolean isTopLayoutVisible = true;
     @Override
     public void animTopLayoutGone(View view) {
-
+        if (isTopLayoutVisible) {
+            isTopLayoutVisible = false;
+            AnimatorUtils.alphaAnim(view, new LinearInterpolator(), 100, false);
+        }
     }
 
+    boolean isVisible = true;
     @Override
     public void animTitleBar(boolean touchMoon) {
+        if (touchMoon) {
 
+            if (isVisible) {
+                isVisible = false;
+
+                AnimatorUtils.translationYAnim(titleBar, new AnticipateOvershootInterpolator(), 1000, false, TOP_TO_GONE);
+                toBottomImg.setVisibility(View.VISIBLE);
+            }
+
+        } else {
+
+            if (!isVisible) {
+                isVisible = true;
+
+                AnimatorUtils.translationYAnim(titleBar, new AnticipateOvershootInterpolator(), 1000, true, TOP_TO_VISIBLE);
+                toBottomImg.setVisibility(View.GONE);
+            }
+
+        }
     }
 
-    @Override
-    public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) {
-        xScrollView.setTitleBarHeight(view.getMeasuredHeight());
+    @OnClick(R.id.to_bottom_img)
+    public void toBottom() {
+        xScrollView.scrollToBottom();
     }
 }

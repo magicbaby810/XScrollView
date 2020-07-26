@@ -54,7 +54,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation files('libs/Android_Map3D_SDK_V7.5.0_20200610.jar')
 
-    implementation 'com.sk.xscrollview:xscrollview:0.0.3'
+    implementation 'com.sk.xscrollview:xscrollview:0.0.4'
     //依赖注入
     implementation 'com.jakewharton:butterknife:10.0.0'
 //    implementation project(path: ':XScrollView')

@@ -9,10 +9,12 @@ import androidx.fragment.app.Fragment;
 
 import android.Manifest;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AnticipateOvershootInterpolator;
 
 import com.google.android.material.tabs.TabLayout;
+import com.sk.xscrollview.XScrollView;
 import com.sk.xscrollviewdemo.adapter.BaseFragmentPagerAdapter;
 import com.sk.xscrollviewdemo.view.NoScrollViewPager;
 
@@ -27,7 +29,7 @@ import static com.sk.xscrollviewdemo.AnimatorUtils.TOP_TO_GONE;
 import static com.sk.xscrollviewdemo.AnimatorUtils.TOP_TO_VISIBLE;
 
 
-public class MainActivity extends AppCompatActivity implements View.OnLayoutChangeListener {
+public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.tab_layout)
     TabLayout tabLayout;
@@ -39,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements View.OnLayoutChan
     AppCompatImageView toBottomImg;
 
 
-    private MapFragment mapFragment;
+    private MapFragment mapFragment1, mapFragment2, mapFragment3;
 
     private ArrayList<Fragment> mFragments = new ArrayList<>();
     private BaseFragmentPagerAdapter mAdapter;
@@ -55,9 +57,9 @@ public class MainActivity extends AppCompatActivity implements View.OnLayoutChan
 
 
     protected void initView() {
-        mFragments.add(mapFragment = new MapFragment());
-        mFragments.add(new MapFragment());
-        mFragments.add(new MapFragment());
+        mFragments.add(mapFragment1 = new MapFragment());
+        mFragments.add(mapFragment2 = new MapFragment());
+        mFragments.add(mapFragment3 = new MapFragment());
         mAdapter = new BaseFragmentPagerAdapter(getSupportFragmentManager(), mFragments);
 
         viewPager.setAdapter(mAdapter);
@@ -69,7 +71,9 @@ public class MainActivity extends AppCompatActivity implements View.OnLayoutChan
         tabLayout.getTabAt(1).setText("顺风车");
         tabLayout.getTabAt(2).setText("出租车");
 
-        titleBarLayout.addOnLayoutChangeListener(this);
+        mapFragment1.setTitleBar(titleBarLayout);
+        mapFragment2.setTitleBar(titleBarLayout);
+        mapFragment3.setTitleBar(titleBarLayout);
 
         ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1001);
     }
@@ -77,15 +81,8 @@ public class MainActivity extends AppCompatActivity implements View.OnLayoutChan
 
     @OnClick(R.id.to_bottom_img)
     public void toBottom() {
-        mapFragment.xScrollView.scrollToBottom();
+        mapFragment1.xScrollView.scrollToBottom();
     }
-
-
-    @Override
-    public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) {
-        mapFragment.xScrollView.setTitleBarHeight(titleBarLayout.getHeight());
-    }
-
 
     boolean isVisible = true;
     public void animTitleBar(boolean touchMoon) {
