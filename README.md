@@ -63,11 +63,11 @@
 	        app:backgroundColor="@android:color/white"/>
 	```   
 	
-	- `app:topLayout`: 自定义顶部布局（不是屏幕的顶部）
-	- `app:bottomLayout`: 自定义底部布局（不是屏幕的底部）
-	- `app:routeLayout`: 自定义未完成行程布局
-	- `app:couponLayout`: 自定义优惠券套餐布局
-	- `app:activityLayout`: 自定义活动广告布局
+	- `app:topLayout`: 自定义顶部布局 TopLayout（不是屏幕的顶部）
+	- `app:bottomLayout`: 自定义底部布局 BottomLayout（不是屏幕的底部）
+	- `app:routeLayout`: 自定义未完成行程布局  RecyclerView item
+	- `app:couponLayout`: 自定义优惠券套餐布局 RecyclerView item
+	- `app:activityLayout`: 自定义活动广告布局 RecyclerView item
 	- `app:backgroundColor`: 自定义从`BottomLayout`往下布局的背景色  
   
   
