@@ -67,9 +67,9 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(viewPager);
 
 
-        tabLayout.getTabAt(0).setText("专车");
-        tabLayout.getTabAt(1).setText("顺风车");
-        tabLayout.getTabAt(2).setText("出租车");
+        tabLayout.getTabAt(0).setText("TAB1");
+        tabLayout.getTabAt(1).setText("TAB2");
+        tabLayout.getTabAt(2).setText("TAB3");
 
         mapFragment1.setTitleBar(titleBarLayout);
         mapFragment2.setTitleBar(titleBarLayout);
