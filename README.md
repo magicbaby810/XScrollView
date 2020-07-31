@@ -5,7 +5,7 @@
 是不是你想要的，先看效果  
 
 
-![image](https://cloud.189.cn/t/jERjmibeyy2q)
+![image](http://third-eye.cn/1596211212353012-1.gif)
 
 ### XScrollView 三部分
 
